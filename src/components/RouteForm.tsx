@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { fetchRoute, RouteData } from '../services/api';
+import { fetchRoute} from '../services/api';
+import { fetchRouteData } from '../features/route/routeSlice';
+import { useAppDispatch } from '../app/hooks';
 
-interface RouteFormProps {
-  onSubmit: (routeData: RouteData) => void;
-}
-
-const RouteForm: React.FC<RouteFormProps> = ({ onSubmit }) => {
+const RouteForm = () => {
+  const dispatch = useAppDispatch();
   const [origin, setOrigin] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -18,8 +17,14 @@ const RouteForm: React.FC<RouteFormProps> = ({ onSubmit }) => {
       setError(null);
       
       try {
-        const routeData = await fetchRoute(origin, destination);
-        onSubmit(routeData);
+        await fetchRoute(origin, destination);
+        
+        dispatch(fetchRouteData({ 
+          origin: origin, 
+          destination: destination 
+        }));
+
+
       } catch (err) {
         setError('Failed to fetch route. Please try again.');
         console.error(err);
